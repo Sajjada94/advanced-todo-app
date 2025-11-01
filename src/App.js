@@ -1,3 +1,4 @@
+import TodoFilter from './TodoFilter'; // Import the new Filter component
 import React, { useState, useEffect } from 'react'; // مطمئن شوید هر دو هوک وارد شده‌اند
 import './App.css';
 import TodoForm from './TodoForm'; 
@@ -13,6 +14,7 @@ const getInitialTodos = () => {
 function App() {
     // ۲. تعریف State (داخل کامپوننت)
     const [todos, setTodos] = useState(getInitialTodos);
+    const [filter, setFilter] = useState('all');
 
     // ۳. useEffect برای ذخیره‌سازی (داخل کامپوننت، زیر useState)
     useEffect(() => {
@@ -41,6 +43,26 @@ function App() {
             )
         );
     };
+    const getFilteredTodos = () => {
+    if (filter === 'all') {
+        // ۱. اگر فیلتر روی 'all' است، آرایه کامل وظایف را برمی‌گردانیم.
+        return todos; 
+    }
+    
+    if (filter === 'completed') {
+        // ۲. فقط وظایفی را برمی‌گردانیم که completed: true باشند.
+        return todos.filter(todo => todo.completed === true) 
+    }
+
+    if (filter === 'uncompleted') {
+        // ۳. فقط وظایفی را برمی‌گردانیم که completed: false باشند.
+        // (یا به صورت کوتاه: !todo.completed)
+        return todos.filter(todo => todo.completed === false)
+    }
+    
+    // در صورتی که فیلتر نامشخص بود، تمام لیست را برمی‌گرداند.
+    return todos; 
+};
     
     return (
         <div className="App">
@@ -49,12 +71,17 @@ function App() {
             <h1>My Advanced Todo App (V0.4 - Persistence Added)</h1> 
             
             <TodoForm onAddTodo={addTodo} />
-            
+            {/* به جای tasks={todos}، اکنون tasks={getFilteredTodos()} را می‌فرستیم */}
+            {/* ۱. اضافه کردن کامپوننت فیلتر */}
+            <TodoFilter 
+            currentFilter={filter} // وضعیت فیلتر فعلی را می‌فرستیم
+            onFilterChange={setFilter} // تابع تغییر دهنده (setFilter) را می‌فرستیم
+        />
             <TodoList 
-                tasks={todos} 
+                tasks={getFilteredTodos()} // این آرایه فیلترشده را می‌فرستد
                 onDelete={deleteTodo} 
                 onToggleComplete={toggleComplete} 
-            />
+        />
             
         </div>
     );
